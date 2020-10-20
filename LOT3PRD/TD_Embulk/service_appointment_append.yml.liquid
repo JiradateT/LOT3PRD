@@ -64,5 +64,5 @@ filters:
   to_column: {name: time, type: timestamp}
   from_value: {mode: upload_time}
 out: {type: td, apikey: {{out_APIKEY}}, endpoint: api.treasuredata.com,
-  database: {{out_database}}, table: diff_service_appointment_test, time_column: time, mode: replace, default_timestamp_format: '%Y-%m-%d
+  database: {{out_database}}, table: diff_service_appointment, time_column: time, mode: replace, default_timestamp_format: '%Y-%m-%d
     %H:%M:%S', stamp_format: '%Y-%m-%d %H:%M:%S'}
