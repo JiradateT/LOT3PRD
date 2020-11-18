@@ -8,7 +8,8 @@ _export:
     from: TD_Interface@no-reply
     host: 172.30.2.203
     port: 25
-    to: [pattharin_b@tripetch-it.co.th, jiradate_t@tripetch-it.co.th]
+#    to: [pattharin_b@tripetch-it.co.th, jiradate_t@tripetch-it.co.th]
+    to: [jiradate_t@tripetch-it.co.th]
 
   plugin:
     repositories:
@@ -17,12 +18,12 @@ _export:
       - com.github.tamanyan:digdag-hangouts-chat:0.1.5
   webhook_url: https://chat.googleapis.com/v1/spaces/AAAAthNXAYA/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=Sp7mNeKkjzwQnmxR7TZE0c73TEk1x-7iUqygWb1NCQQ%3D
   workflow_name: Service Appointment and Proactive and Prospect_booking_retail_sales
-  ENV: develop
+  ENV: PRD
   td:
     database: mirai_raw
   
 +start_message:
-  sh>: echo start Service Appointment and Proactive and Prospect_BK_RS
+  sh>: echo start Service Appointment and Proactive and Prospect_booking_RS
 
 +current_loc:
   sh>: pwd
@@ -34,38 +35,25 @@ _export:
 +mirai_data_to_td_lot1_2_append:
 
   +1_service_appointment:
-    sh>: export PATH=$PATH:/home/pemtdadmin/.bin/  ;
-         embulk run ~/DIGDAG_TD/TD_Embulk/service_appointment_append.yml.liquid;
-         mkdir -p ~/backup/$(date +%d%m%Y);
-         embulk run ~/DIGDAG_TD/TD_Embulk/backup_csv_service_appointment.yml.liquid;
-         mv ~/backup/service_appointment*.csv ~/backup/$(date +%d%m%Y)
+    sh>: export PATH=$PATH:/home/qemtdadmin/.bin/  ;
+         embulk run ~/DIGDAG_TD/TD_Embulk/service_appointment_append.yml.liquid
     _error:
       mail>: ./mail_body_error.txt
       subject: Serivce Appointment Append Workflow Error
 
   +2_Proactive:
-    sh>: export PATH=$PATH:/home/pemtdadmin/.bin/  ;  
-         embulk run ~/DIGDAG_TD/TD_Embulk/proactive_append.yml.liquid;
-         mkdir -p ~/backup/$(date +%d%m%Y);
-         embulk run ~/DIGDAG_TD/TD_Embulk/backup_csv_proactive.yml.liquid;
-         mv ~/backup/proactive*.csv ~/backup/$(date +%d%m%Y)
+    sh>: export PATH=$PATH:/home/qemtdadmin/.bin/  ;  
+         embulk run ~/DIGDAG_TD/TD_Embulk/proactive_append.yml.liquid
     _error:
       mail>: ./mail_body_error.txt
       subject: Proactive Append Workflow Error
 
   +3_Prospect_booking_retail_sales:
-    sh>: export PATH=$PATH:/home/pemtdadmin/.bin/  ;
+    sh>: export PATH=$PATH:/home/qemtdadmin/.bin/  ;
          embulk run ~/DIGDAG_TD/TD_Embulk/sale_analysis_append.yml.liquid
     _error:
       mail>: ./mail_body_error.txt
       subject: Prospect_booking_retail_sales Append Workflow Error
-
-  +4_zip:
-    sh>: tar -czvf ~/backup/$(date +%d%m%Y).tar.gz ~/backup/$(date +%d%m%Y);
-         rm -R ~/backup/$(date +%d%m%Y);
-    _error:
-      mail>: ./mail_body_error.txt
-      subject: Backup Zip file Workflow Error
 
   +update_master_tables:
     _parallel: true

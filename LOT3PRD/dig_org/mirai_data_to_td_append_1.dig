@@ -1,15 +1,14 @@
 timezone: Asia/Bangkok
 
-#schedule:
-#  daily>: 06:00:00
+schedule:
+  daily>: 06:00:00
 
 _export:
   mail:
     from: TD_Interface@no-reply
     host: 172.30.2.203
     port: 25
-#    to: [pattharin_b@tripetch-it.co.th, jiradate_t@tripetch-it.co.th]
-    to: [jiradate_t@tripetch-it.co.th]
+    to: [pattharin_b@tripetch-it.co.th, jiradate_t@tripetch-it.co.th]
 
   plugin:
     repositories:
@@ -17,8 +16,8 @@ _export:
     dependencies:
       - com.github.tamanyan:digdag-hangouts-chat:0.1.5
   webhook_url: https://chat.googleapis.com/v1/spaces/AAAAthNXAYA/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=Sp7mNeKkjzwQnmxR7TZE0c73TEk1x-7iUqygWb1NCQQ%3D
-  workflow_name: Mirai to TD 1 daily 
-  ENV: PRD
+  workflow_name: Mirai data to TD Daily
+  ENV: develop
   td:
     database: mirai_raw
   
@@ -35,14 +34,14 @@ _export:
 +mirai_data_to_td_append:
   #workflow_1
   +1_m_customer_attribute_details:
-    sh>: export PATH=$PATH:/home/pemtdadmin/.bin/  ;    
+    sh>: export PATH=$PATH:/home/qemtdadmin/.bin/  ;    
          embulk run ~/DIGDAG_TD/TD_Embulk/mirai_to_td_replace/m_customer_attribute_details.yml.liquid
     _error:
       mail>: ./mail_body_error.txt
       subject: Customer Attribute Details Workflow Error
 
   +3_m_customer_attribute_details_history:
-    sh>: export PATH=$PATH:/home/pemtdadmin/.bin/  ;    
+    sh>: export PATH=$PATH:/home/qemtdadmin/.bin/  ;    
          embulk run ~/DIGDAG_TD/TD_Embulk/mirai_to_td_replace/m_customer_attribute_details_history.yml.liquid
     _error:
       mail>: ./mail_body_error.txt
@@ -51,26 +50,26 @@ _export:
   #modify value > values
   #error column : customer_image
   +5_m_customer_attribute_value:
-    sh>: export PATH=$PATH:/home/pemtdadmin/.bin/  ;    
+    sh>: export PATH=$PATH:/home/qemtdadmin/.bin/  ;    
          embulk run ~/DIGDAG_TD/TD_Embulk/mirai_to_td_replace/m_customer_attribute_values.yml.liquid
     _error:
       mail>: ./mail_body_error.txt
       subject: Customer Attribute Workflow Error
 
   #modify driver path
-#  +7_m_customer_branch_parameters:
-#    sh>: export PATH=$PATH:/home/pemtdadmin/.bin/  ;    
-#         embulk run ~/DIGDAG_TD/TD_Embulk/mirai_to_td_replace/m_customer_branch_parameters.yml.liquid
-#    _error:
-#      mail>: ./mail_body_error.txt
-#      subject: Customer Branch Workflow Error
+  +7_m_customer_branch_parameters:
+    sh>: export PATH=$PATH:/home/qemtdadmin/.bin/  ;    
+         embulk run ~/DIGDAG_TD/TD_Embulk/mirai_to_td_replace/m_customer_branch_parameters.yml.liquid
+    _error:
+      mail>: ./mail_body_error.txt
+      subject: Customer Branch Workflow Error
 
-#  +9_m_customer_branch_status:
-#    sh>: export PATH=$PATH:/home/pemtdadmin/.bin/  ;    
-#         embulk run ~/DIGDAG_TD/TD_Embulk/mirai_to_td_replace/m_customer_branch_status.yml.liquid
-#    _error:
-#      mail>: ./mail_body_error.txt
-#      subject: Customer Branch Status Workflow Error
+  +9_m_customer_branch_status:
+    sh>: export PATH=$PATH:/home/qemtdadmin/.bin/  ;    
+         embulk run ~/DIGDAG_TD/TD_Embulk/mirai_to_td_replace/m_customer_branch_status.yml.liquid
+    _error:
+      mail>: ./mail_body_error.txt
+      subject: Customer Branch Status Workflow Error
 
   +update_master_tables:
     _parallel: true
@@ -115,31 +114,31 @@ _export:
              cd ~/DIGDAG_TD/workflows/queries_mirai_diff ;
              td query -d mirai_raw -T presto -q m_customer_attribute_values_insertion.sql
 
-#    +4_upd_m_customer_branch_parameters:
-#      _retry: 2
+    +4_upd_m_customer_branch_parameters:
+      _retry: 2
 
-#      +delete_diff_m_customer_branch_parameters_data:
-#        sh>:
-#             cd ~/DIGDAG_TD/workflows/queries_mirai_diff ;
-#             td query -d mirai_raw -T presto -q m_customer_branch_parameters_deletion_diff.sql
+      +delete_diff_m_customer_branch_parameters_data:
+        sh>:
+             cd ~/DIGDAG_TD/workflows/queries_mirai_diff ;
+             td query -d mirai_raw -T presto -q m_customer_branch_parameters_deletion_diff.sql
 
-#      +insert_diff_m_customer_branch_parameters_data:
-#        sh>:
-#             cd ~/DIGDAG_TD/workflows/queries_mirai_diff ;
-#             td query -d mirai_raw -T presto -q m_customer_branch_parameters_insertion_diff.sql
+      +insert_diff_m_customer_branch_parameters_data:
+        sh>:
+             cd ~/DIGDAG_TD/workflows/queries_mirai_diff ;
+             td query -d mirai_raw -T presto -q m_customer_branch_parameters_insertion_diff.sql
 
-#    +6_upd_m_customer_branch_status:
-#      _retry: 2
+    +6_upd_m_customer_branch_status:
+      _retry: 2
 
-#      +delete_diff_m_customer_branch_status_data:
-#        sh>:
-#             cd ~/DIGDAG_TD/workflows/queries_mirai_diff ;
-#             td query -d mirai_raw -T presto -q m_customer_branch_status_deletion_diff.sql
+      +delete_diff_m_customer_branch_status_data:
+        sh>:
+             cd ~/DIGDAG_TD/workflows/queries_mirai_diff ;
+             td query -d mirai_raw -T presto -q m_customer_branch_status_deletion_diff.sql
 
-#      +insert_diff_m_customer_branch_status_data:
-#        sh>:
-#             cd ~/DIGDAG_TD/workflows/queries_mirai_diff ;
-#             td query -d mirai_raw -T presto -q m_customer_branch_status_insertion_diff.sql
+      +insert_diff_m_customer_branch_status_data:
+        sh>:
+             cd ~/DIGDAG_TD/workflows/queries_mirai_diff ;
+             td query -d mirai_raw -T presto -q m_customer_branch_status_insertion_diff.sql
 
 +success_message:
     mail>: ./TD_Mirai_data_to_TD_mail_body_append.txt

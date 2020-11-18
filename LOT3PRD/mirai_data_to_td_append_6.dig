@@ -1,14 +1,15 @@
 timezone: Asia/Bangkok
 
-schedule:
-  daily>: 06:00:00
+#schedule:
+#  daily>: 06:00:00
 
 _export:
   mail:
     from: TD_Interface@no-reply
     host: 172.30.2.203
     port: 25
-    to: [pattharin_b@tripetch-it.co.th, jiradate_t@tripetch-it.co.th]
+#    to: [pattharin_b@tripetch-it.co.th, jiradate_t@tripetch-it.co.th]
+    to: [jiradate_t@tripetch-it.co.th]
 
   plugin:
     repositories:
@@ -16,8 +17,8 @@ _export:
     dependencies:
       - com.github.tamanyan:digdag-hangouts-chat:0.1.5
   webhook_url: https://chat.googleapis.com/v1/spaces/AAAAthNXAYA/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=Sp7mNeKkjzwQnmxR7TZE0c73TEk1x-7iUqygWb1NCQQ%3D
-  workflow_name: Mirai data to TD Daily
-  ENV: develop
+  workflow_name: Mirai to TD 6 daily 
+  ENV: PRD
   td:
     database: mirai_raw
   
@@ -34,32 +35,32 @@ _export:
 +mirai_data_to_td_append:
 
   #workflow_6
-  +42_m_repair_history_header:
-    sh>: export PATH=$PATH:/home/qemtdadmin/.bin/  ;    
-         embulk run ~/DIGDAG_TD/TD_Embulk/mirai_to_td_replace/m_repair_history_header.yml.liquid
-    _error:
-      mail>: ./mail_body_error.txt
-      subject: Repair History Header Workflow Error
+#  +42_m_repair_history_header:
+#    sh>: export PATH=$PATH:/home/pemtdadmin/.bin/  ;    
+#         embulk run ~/DIGDAG_TD/TD_Embulk/mirai_to_td_replace/m_repair_history_header.yml.liquid
+#    _error:
+#      mail>: ./mail_body_error.txt
+#      subject: Repair History Header Workflow Error
 
   # Modify selet VS to TD
-  +44_m_retail_sales_info:
-    sh>: export PATH=$PATH:/home/qemtdadmin/.bin/  ;    
-         embulk run ~/DIGDAG_TD/TD_Embulk/mirai_to_td_replace/m_retail_sales_info.yml.liquid
-    _error:
-      mail>: ./mail_body_error.txt
-      subject: Retail Sales Info Workflow Error
+#  +44_m_retail_sales_info:
+#    sh>: export PATH=$PATH:/home/pemtdadmin/.bin/  ;    
+#         embulk run ~/DIGDAG_TD/TD_Embulk/mirai_to_td_replace/m_retail_sales_info.yml.liquid
+#    _error:
+#      mail>: ./mail_body_error.txt
+#      subject: Retail Sales Info Workflow Error
 
   # Modify tabatab in selet
   +46_m_vehicle_dealer_group_parameters:
-    sh>: export PATH=$PATH:/home/qemtdadmin/.bin/  ;    
+    sh>: export PATH=$PATH:/home/pemtdadmin/.bin/  ;    
          embulk run ~/DIGDAG_TD/TD_Embulk/mirai_to_td_replace/m_vehicle_dealer_group_parameters.yml.liquid
     _error:
       mail>: ./mail_body_error.txt
       subject: Vehicle Dealer Group parameter Workflow Error
 
-  +48_m_vehicle_master:
-    sh>: export PATH=$PATH:/home/qemtdadmin/.bin/  ;    
-         embulk run ~/DIGDAG_TD/TD_Embulk/mirai_to_td_replace/m_vehicle_master.yml.liquid
+  +48_m_vehicle_master_dup:
+    sh>: export PATH=$PATH:/home/pemtdadmin/.bin/  ;    
+         embulk run ~/DIGDAG_TD/TD_Embulk/mirai_to_td_replace/m_vehicle_master_dup.yml.liquid
     _error:
       mail>: ./mail_body_error.txt
       subject: Vehicle Master Workflow Error
@@ -68,31 +69,31 @@ _export:
     _parallel: true
 
     #workflow_6
-    +17_upd_m_repair_history_header:
-      _retry: 2
+#    +17_upd_m_repair_history_header:
+#      _retry: 2
 
-      +delete_diff_m_repair_history_header_data:
-        sh>:
-             cd ~/DIGDAG_TD/workflows/queries_mirai_diff ;
-             td query -d mirai_raw -T presto -q m_repair_history_header_deletion_diff.sql
+#      +delete_diff_m_repair_history_header_data:
+#        sh>:
+#             cd ~/DIGDAG_TD/workflows/queries_mirai_diff ;
+#             td query -d mirai_raw -T presto -q m_repair_history_header_deletion_diff.sql
 
-      +insert_diff_m_repair_history_header_data:
-        sh>:
-             cd ~/DIGDAG_TD/workflows/queries_mirai_diff ;
-             td query -d mirai_raw -T presto -q m_repair_history_header_insertion_diff.sql
+#      +insert_diff_m_repair_history_header_data:
+#        sh>:
+#             cd ~/DIGDAG_TD/workflows/queries_mirai_diff ;
+#             td query -d mirai_raw -T presto -q m_repair_history_header_insertion_diff.sql
 
-    +18_upd_m_retail_sales_info:
-      _retry: 2
+#    +18_upd_m_retail_sales_info:
+#      _retry: 2
 
-      +delete_diff_m_retail_sales_info_data:
-        sh>:
-             cd ~/DIGDAG_TD/workflows/queries_mirai_diff ;
-             td query -d mirai_raw -T presto -q m_retail_sales_info_deletion_diff.sql
+#      +delete_diff_m_retail_sales_info_data:
+#        sh>:
+#             cd ~/DIGDAG_TD/workflows/queries_mirai_diff ;
+#             td query -d mirai_raw -T presto -q m_retail_sales_info_deletion_diff.sql
 
-      +insert_diff_m_retail_sales_info_data:
-        sh>:
-             cd ~/DIGDAG_TD/workflows/queries_mirai_diff ;
-             td query -d mirai_raw -T presto -q m_retail_sales_info_insertion_diff.sql
+#      +insert_diff_m_retail_sales_info_data:
+#        sh>:
+#             cd ~/DIGDAG_TD/workflows/queries_mirai_diff ;
+#             td query -d mirai_raw -T presto -q m_retail_sales_info_insertion_diff.sql
 
     +19_upd_m_vehicle_dealer_group_parameters:
       _retry: 2
@@ -113,12 +114,12 @@ _export:
       +delete_diff_m_vehicle_master_data:
         sh>:
              cd ~/DIGDAG_TD/workflows/queries_mirai_diff ;
-             td query -d mirai_raw -T presto -q m_vehicle_master_deletion_diff.sql
+             td query -d mirai_raw -T presto -q m_vehicle_master_deletion_dup_diff.sql
 
       +insert_diff_m_vehicle_master_data:
         sh>:
              cd ~/DIGDAG_TD/workflows/queries_mirai_diff ;
-             td query -d mirai_raw -T presto -q m_vehicle_master_insertion_diff.sql
+             td query -d mirai_raw -T presto -q m_vehicle_master_insertion_dup_diff.sql
 
 +success_message:
     mail>: ./TD_Mirai_data_to_TD_mail_body_append.txt
